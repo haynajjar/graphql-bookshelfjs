@@ -1,5 +1,5 @@
 {
-  "name": "graphql-bookshelfjs",
+  "name": "p-graphql-bookshelfjs",
   "version": "1.0.8",
   "description": "Using GraphQL with Bookshelf ORM",
   "main": "src/index.js",

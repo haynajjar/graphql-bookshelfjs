@@ -39,7 +39,7 @@ module.exports = {
      * @returns {function}
      */
     resolverFactory(Model) {
-        return function resolver(modelInstance, args, context, info, extra) {
+        return function resolver(modelInstance, args, context, info, extra, pageOptions) {
             const isAssociation = (typeof Model.prototype[info.fieldName] === 'function');
             const model = isAssociation ? modelInstance.related(info.fieldName) : new Model();
             for (const key in args) {
@@ -66,8 +66,9 @@ module.exports = {
                 context && context.loaders && context.loaders(model);
                 return model.fetch().then((c) => { return exposeAttributes(c); });
             }
-            const fn = (info.returnType.constructor.name === 'GraphQLList') ? 'fetchAll' : 'fetch';
-            return model[fn]().then((c) => { return exposeAttributes(c); });
+            const fn = (info.returnType.constructor.name === 'GraphQLList') ? (pageOptions ? 'fetchPage' : 'fetchAll') : 'fetch';
+            const modelFn = pageOptions ? model[fn](pageOptions) : model[fn]()
+            return modelFn.then((c) => { return exposeAttributes(c); });
         };
     },
 
