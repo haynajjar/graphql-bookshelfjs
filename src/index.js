@@ -9,14 +9,18 @@ const loaders = require('./loaders');
  * @param {object} collection
  * @returns {*}
  */
-function exposeAttributes(collection) {
+function exposeAttributes(collection,context) {
+
     function exposeModelAttributes(item) {
         // Make sure that relations are excluded
         return Object.assign(item, item.serialize({ shallow: true }));
     }
     if (collection) {
         if (collection.hasOwnProperty('length')) {
-            return collection.map((item) => { return exposeModelAttributes(item); });
+            let list = collection.map((item) => { return exposeModelAttributes(item); })
+            if(context)
+                context.pagination = collection.pagination
+            return  list
         }
         return exposeModelAttributes(collection);
     }
@@ -68,7 +72,7 @@ module.exports = {
             }
             const fn = (info.returnType.constructor.name === 'GraphQLList') ? (pageOptions ? 'fetchPage' : 'fetchAll') : 'fetch';
             const modelFn = pageOptions ? model[fn](pageOptions) : model[fn]()
-            return modelFn.then((c) => { return exposeAttributes(c); });
+            return modelFn.then((c) => { return exposeAttributes(c,context); });
         };
     },
 
